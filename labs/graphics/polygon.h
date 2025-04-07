@@ -4,21 +4,22 @@
 #include "ray.h"
 
 #include <QPoint>
+#include <QPointF>
 #include <vector>
 #include <optional>
 
 class Polygon {
 public:
     Polygon() = default;
-    Polygon(const std::vector<QPoint>& vertices);
+    Polygon(const std::vector<QPointF>& vertices);
     [[nodiscard]] int GetVerticesNumber() const;
-    [[nodiscard]] QPoint GetVertex(int index) const;
-    [[nodiscard]] QPoint& GetVertex(int index);
-    void AddVertex(const QPoint& vertex);
-    void UpdateLastVertex(const QPoint& new_vertex);
-    std::optional<QPoint> IntersectRay(const Ray& ray);
+    [[nodiscard]] QPointF GetVertex(int index) const;
+    //QPoint& GetVertex(int index);
+    void AddVertex(const QPointF& vertex);
+    void UpdateLastVertex(const QPointF& new_vertex);
+    std::optional<QPointF> IntersectRay(const Ray& ray) const;
 private:
-    std::vector<QPoint>vertices_;
+    std::vector<QPointF>vertices_;
 };
 
 #endif  // POLYGON_H

@@ -11,42 +11,42 @@
 
 
 Plane::Plane(QWidget *parent) : QWidget(parent) {
-    cursor_pos_ = QPoint(-1, -1);
+    controller_.SetLightSource(QPointF(1, 1));
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
-
 }
 
 Plane::~Plane() {
 }
 
 void Plane::mousePressEvent(QMouseEvent *event) {
-    if (mode_ == Mode::Polygons) {
+    controller_.SetLightSource(event->pos());
+    if (controller_.GetMode() == Controller::Mode::Polygons) {
         if (event->button() == Qt::LeftButton) {
-            if (drawing_ == false) {
-                drawing_ = true;
+            if (!controller_.IsDrawing()) {
+                controller_.SetDrawing(true);
                 controller_.AddPolygon(Polygon());
             }
             controller_.AddVertexToLastPolygon(event->pos());
         } else {
-            drawing_ = false;
+            controller_.SetDrawing(false);
         }
     }
     update();
 }
 
 void Plane::mouseMoveEvent(QMouseEvent *event) {
-    if (mode_ == Mode::Light) {
-        cursor_pos_ = event->pos();
-        cursor_visible_ = true;
+    controller_.SetLightSource(event->pos());
+    if (controller_.GetMode() == Controller::Mode::Light) {
+        controller_.SetLightSourceVisibility(true);
         update();
     }
 }
 
 void Plane::leaveEvent(QEvent *event) {
-    if (mode_ == Mode::Light) {
-        cursor_pos_ = QPoint(-1,-1);
-        cursor_visible_ = false;
+    controller_.SetLightSource(QPointF(-1, -1));
+    if (controller_.GetMode() == Controller::Mode::Light) {
+        controller_.SetLightSourceVisibility(false);
         update();
     }
 }
@@ -54,14 +54,15 @@ void Plane::leaveEvent(QEvent *event) {
 void Plane::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     //painter.fillRect(rect(), Qt::white);
-    painter.setPen(QPen(Qt::black, 3));
+    painter.setPen(QPen(Qt::black, 2));
     painter.setBrush(QColor(0, 0, 0, 100));
 
-    QPoint prev_vertex;
+    QPointF prev_vertex;
     for (const auto& polygon : controller_.GetPolygons()) {
-        for (int i = 0; i < polygon.GetVerticesNumber(); i++) {
-            auto vertex = polygon.GetVertex(i);
-            painter.drawEllipse(vertex, 5, 5);
+        const int sz = polygon.GetVerticesNumber();
+        for (int i = 0; i <= sz; i++) {
+            auto vertex = polygon.GetVertex(i % sz);
+            //painter.drawEllipse(vertex, 5, 5);
             if (i) {
                 painter.drawLine(prev_vertex, vertex);
             }
@@ -69,10 +70,18 @@ void Plane::paintEvent(QPaintEvent *event) {
         }
     }
 
-    if (cursor_visible_) {
+
+
+    if (controller_.IsLightSourceVisible()) {
         painter.setPen(QPen(Qt::red, 2));
         painter.setBrush(QColor(255, 0, 0, 100));
-        painter.drawEllipse(cursor_pos_, 5, 5);
+        painter.drawEllipse(controller_.GetLightSource(), 5, 5);
+
+        painter.setPen(QPen(Qt::red, 1));
+        const auto rays = controller_.CastRays();
+        for (const auto& ray : rays) {
+            painter.drawLine(ray.Begin(), ray.End());
+        }
     }
 }
 
@@ -80,17 +89,17 @@ void Plane::keyPressEvent(QKeyEvent *event) {
 
     switch(event->key()) {
         case Qt::Key_L:
-            if (mode_ != Mode::Light) {
-                mode_ = Mode::Light;
-                drawing_ = false;
-                cursor_visible_ = true;
+            if (controller_.GetMode() != Controller::Mode::Light) {
+                controller_.SetMode(Controller::Mode::Light);
+                controller_.SetDrawing(false);
+                controller_.SetLightSourceVisibility(true);
                 update();
             }
             break;
         case Qt::Key_P:
-            if (mode_ != Mode::Polygons) {
-                mode_ = Mode::Polygons;
-                cursor_visible_ = false;
+            if (controller_.GetMode() != Controller::Mode::Polygons) {
+                controller_.SetMode(Controller::Mode::Polygons);
+                controller_.SetLightSourceVisibility(false);
                 update();
             }
             break;

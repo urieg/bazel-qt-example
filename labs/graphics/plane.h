@@ -3,9 +3,12 @@
 
 #include "controller.h"
 
+
 #include <QWidget>
 #include <QImage>
 #include <QPoint>
+
+class MainWindow;
 
 class Plane : public QWidget{
 public:
@@ -16,12 +19,8 @@ public:
     void mouseMoveEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    friend class MainWindow;
 private:
-    enum class Mode {Light, Polygons};
-    Mode mode_ = Mode::Light;
-    bool drawing_ = false;
-    QPoint cursor_pos_;
-    bool cursor_visible_ = true;
     Controller controller_;
 };
 
