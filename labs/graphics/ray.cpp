@@ -9,10 +9,10 @@ Ray::Ray(){
 
 Ray::Ray(const QPointF& begin,const QPointF& end, double angle)
     : begin_(begin), end_(end), angle_(angle){
-    angle_ = CalculateAngle();
     dy_ = end_.y() - begin_.y();
     dx_ = end_.x() - begin_.x();
     square_of_length_ = dy_*dy_ + dx_*dx_;
+    CalculateAngle();
 }
 
 Ray Ray::Rotate(double angle) const {
@@ -21,6 +21,8 @@ Ray Ray::Rotate(double angle) const {
     ray.begin_ = this->begin_;
     ray.dx_ = dx_*cos(angle) + dy_*sin(angle);
     ray.dy_ = -dx_*sin(angle) + dy_*cos(angle);
+    ray.dx_ *= 10000;
+    ray.dy_ *= 10000;
     ray.square_of_length_ = ray.dx_*ray.dx_ + ray.dy_*ray.dy_;
     ray.end_ = QPointF(ray.begin_.x() + ray.dx_, ray.begin_.y() + ray.dy_);
     return ray;
@@ -37,7 +39,7 @@ void Ray::SetEnd(QPointF point) {
     end_ = point;
     dx_ = end_.x() - begin_.x();
     dy_ = end_.y() - begin_.y();
-    angle_ = CalculateAngle();
+    CalculateAngle();
 }
 
 QPointF Ray::End() const {
@@ -47,7 +49,7 @@ QPointF Ray::End() const {
 void Ray::SetDx(double new_dx) {
     dx_ = new_dx;
     end_.setX(begin_.x() + dx_);
-    angle_ = CalculateAngle();
+    CalculateAngle();
 }
 
 double Ray::Dx() const {
@@ -57,7 +59,7 @@ double Ray::Dx() const {
 void Ray::SetDy(double new_dy) {
     dy_ = new_dy;
     end_.setY(begin_.y() + dy_);
-    angle_ = CalculateAngle();
+    CalculateAngle();
 }
 
 double Ray::Dy() const {
@@ -68,8 +70,11 @@ double Ray::SquareLength() const {
     return square_of_length_;
 }
 
-double Ray::CalculateAngle() {
-    double angle = atan2(dy_, dx_);
-    return angle;
+void Ray::CalculateAngle() {
+    angle_ = atan2(dy_, dx_);
+}
+
+double Ray::Angle() const {
+    return angle_;
 }
 

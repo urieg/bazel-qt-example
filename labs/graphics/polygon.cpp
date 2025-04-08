@@ -61,18 +61,6 @@ std::optional<QPointF> Polygon::IntersectRay(const Ray& ray) const {
                  / ray.Dy();
         }
 
-        // qDebug() << "indeces : " << index1 << ' ' << index2;
-        // qDebug() << "segment : " << segment.Begin().x() << ' ' << segment.Begin().y() << ' '
-        //          << segment.End().x() << ' ' << segment.End().y() << ' '
-        //          << segment.Dx() << ' ' << segment.Dy();
-        // qDebug() << "ray : " << ray.Begin().x() << ' ' << ray.Begin().y() << ' '
-        //          << ray.End().x() << ' ' << ray.End().y() << ' '
-        //          << ray.Dx() << ' ' << ray.Dy();
-        // qDebug() << "T1 and T2: " << T1 << ' ' << T2;
-        // qDebug() << "minT1 : " << min_T1;
-        // qDebug() << "im pos : " << ray.Begin().x() + ray.Dx() * min_T1 << ' '
-        //          << ray.Begin().y() + ray.Dy() * min_T1;
-
         if (T1 < 1 && T1 > 0 && 0 <= T2 && T2 <= 1) {
             min_T1 = std::min(min_T1, T1);
         }
@@ -86,4 +74,8 @@ std::optional<QPointF> Polygon::IntersectRay(const Ray& ray) const {
     else {
         return std::nullopt;
     }
+}
+
+const QPointF* Polygon::Data() {
+    return vertices_.data();
 }

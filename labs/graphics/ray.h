@@ -18,8 +18,14 @@ public:
     void SetDy(double new_dy);
     double Dy() const;
     double SquareLength() const;
+
+    double Angle() const;
+
+    bool operator<(const Ray& s) const {
+        return angle_ < s.angle_;
+    }
 private:
-    double CalculateAngle();
+    void CalculateAngle();
     QPointF begin_;
     QPointF end_;
     double angle_;

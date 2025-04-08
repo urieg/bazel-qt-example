@@ -18,6 +18,7 @@ public:
     void AddVertex(const QPointF& vertex);
     void UpdateLastVertex(const QPointF& new_vertex);
     std::optional<QPointF> IntersectRay(const Ray& ray) const;
+    const QPointF* Data();
 private:
     std::vector<QPointF>vertices_;
 };

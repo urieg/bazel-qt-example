@@ -2,7 +2,6 @@
 #define CONTROLLER_H
 
 #include "polygon.h"
-
 #include <vector>
 
 class Controller {
@@ -16,6 +15,7 @@ public:
     void AddPolygon();
     void AddVertexToLastPolygon(const QPointF& new_vertex);
     void UpdateLastPolygon(const QPointF& new_vertex);
+    Polygon CreateLightArea(std::vector<Ray>* rays);
 
     /// light source
     void SetLightSource(QPointF new_pos);
@@ -30,6 +30,7 @@ public:
     /// rays
     std::vector<Ray> CastRays();
     void IntersectRays(std::vector<Ray>* rays);
+    void SortRaysByAngle(std::vector<Ray>* rays);
     void RemoveAdjacentRays(std::vector<Ray>* rays);
     Polygon CreateLightArea();
 private:

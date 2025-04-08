@@ -74,14 +74,18 @@ void Plane::paintEvent(QPaintEvent *event) {
 
     if (controller_.IsLightSourceVisible()) {
         painter.setPen(QPen(Qt::red, 2));
-        painter.setBrush(QColor(255, 0, 0, 100));
+        //painter.setBrush(QColor(255, 0, 0, 100));
         painter.drawEllipse(controller_.GetLightSource(), 5, 5);
 
         painter.setPen(QPen(Qt::red, 1));
-        const auto rays = controller_.CastRays();
-        for (const auto& ray : rays) {
-            painter.drawLine(ray.Begin(), ray.End());
-        }
+        painter.setBrush(QColor(255, 0, 0, 150));
+
+        auto rays = controller_.CastRays();
+        controller_.IntersectRays(&rays);
+        controller_.SortRaysByAngle(&rays);
+        auto light_area = controller_.CreateLightArea(&rays);
+
+        painter.drawPolygon(light_area.Data(), light_area.GetVerticesNumber());
     }
 }
 
