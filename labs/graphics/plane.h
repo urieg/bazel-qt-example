@@ -7,6 +7,7 @@
 #include <QWidget>
 #include <QImage>
 #include <QPoint>
+#include <QColor>
 
 class MainWindow;
 

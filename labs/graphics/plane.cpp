@@ -8,6 +8,7 @@
 #include <QEvent>
 #include <QWidget>
 #include <QKeyEvent>
+#include <QRadialGradient>
 
 
 Plane::Plane(QWidget *parent) : QWidget(parent) {
@@ -53,9 +54,13 @@ void Plane::leaveEvent(QEvent *event) {
 
 void Plane::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
-    //painter.fillRect(rect(), Qt::white);
-    painter.setPen(QPen(Qt::black, 2));
-    painter.setBrush(QColor(0, 0, 0, 100));
+    painter.fillRect(rect(), QColor(0, 0, 10));
+    painter.setPen(
+        controller_.IsPolygonVisible()
+        ? QPen(controller_.PolygonBorderColor(), 1)
+        : QPen(Qt::NoPen)
+    );
+    painter.setBrush(QColor(0, 0, 10));
 
     QPointF prev_vertex;
     for (const auto& polygon : controller_.GetPolygons()) {
@@ -71,21 +76,37 @@ void Plane::paintEvent(QPaintEvent *event) {
     }
 
 
-
     if (controller_.IsLightSourceVisible()) {
-        painter.setPen(QPen(Qt::red, 2));
+        painter.setPen(QPen(Qt::white, 2));
+        painter.setBrush(Qt::white);
         //painter.setBrush(QColor(255, 0, 0, 100));
         painter.drawEllipse(controller_.GetLightSource(), 5, 5);
 
-        painter.setPen(QPen(Qt::red, 1));
-        painter.setBrush(QColor(255, 0, 0, 150));
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(controller_.LightSourceColor());
 
-        auto rays = controller_.CastRays();
-        controller_.IntersectRays(&rays);
-        controller_.SortRaysByAngle(&rays);
-        auto light_area = controller_.CreateLightArea(&rays);
+        QPointF old_pos_of_light_source = controller_.GetLightSource();
+        for (int i = 1; i <= controller_.Ls_cnt(); i++) {
+            double alpha = 2*acos(-1)/controller_.Ls_cnt()*i;
+            controller_.SetLightSource(
+                QPointF(old_pos_of_light_source.x() + controller_.Radius()*cos(alpha),
+                        old_pos_of_light_source.y() + controller_.Radius()*sin(alpha)
+                        )
+                );
+            auto rays = controller_.CastRays();
+            controller_.IntersectRays(&rays);
+            controller_.SortRaysByAngle(&rays);
+            auto light_area = controller_.CreateLightArea(&rays);
 
-        painter.drawPolygon(light_area.Data(), light_area.GetVerticesNumber());
+            // qreal dist = 500;
+            // QRadialGradient gradient(controller_.GetLightSource(), dist);
+            // gradient.setColorAt(0.0, light_color_);
+            // gradient.setColorAt(1.0, bg_color_);
+            // painter.setBrush(gradient);
+
+            painter.drawPolygon(light_area.Data(), light_area.GetVerticesNumber());
+        }
+        controller_.SetLightSource(old_pos_of_light_source);
     }
 }
 
@@ -102,8 +123,21 @@ void Plane::keyPressEvent(QKeyEvent *event) {
             break;
         case Qt::Key_P:
             if (controller_.GetMode() != Controller::Mode::Polygons) {
+                controller_.SetPolygonVisibility(true);
                 controller_.SetMode(Controller::Mode::Polygons);
                 controller_.SetLightSourceVisibility(false);
+                update();
+            }
+            break;
+        case Qt::Key_C:
+            controller_.ClearPlate();
+            controller_.SetDrawing(false);
+            update();
+            break;
+        case Qt::Key_B:
+            if (controller_.GetMode() == Controller::Mode::Light) {
+                controller_.SetPolygonVisibility(
+                    1 - controller_.IsPolygonVisible());
                 update();
             }
             break;

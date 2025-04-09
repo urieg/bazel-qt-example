@@ -32,12 +32,26 @@ void Controller::UpdateLastPolygon(const QPointF& new_vertex) {
     polygons_.back().UpdateLastVertex(new_vertex);
 }
 
+void Controller::ClearPlate() {
+    if (polygons_.size() > 1) {
+        polygons_.pop_back();
+    }
+}
+
 Polygon Controller::CreateLightArea(std::vector<Ray>* rays) {
     Polygon polygon;
     for (const auto& ray : *rays) {
         polygon.AddVertex(ray.End());
     }
     return polygon;
+}
+
+void Controller::SetPolygonVisibility(bool new_status) {
+    polygons_visibility_ = new_status;
+}
+
+bool Controller::IsPolygonVisible() const {
+    return polygons_visibility_;
 }
 
 /// light source -----------------------------------------------------
@@ -73,6 +87,30 @@ void Controller::SetDrawing(bool new_state) {
 bool Controller::IsDrawing() const {
     return is_drawing_polygons;
 }
+
+int Controller::Ls_cnt() const {
+    return ls_cnt_;
+}
+
+double Controller::Radius() const {
+    return radius_;
+}
+
+
+QColor Controller::BackGroundColor() const {
+    return bg_color_;
+}
+QColor Controller::LightSourceColor() const {
+    return light_source_color_;
+}
+QColor Controller::PolygonBorderColor() const {
+    return polygon_border_color_;
+}
+
+
+// QPointF Controller::Cursor() const {
+//     return cursor_;
+// }
 
 /// rays ---------------------------------------------------------------
 
