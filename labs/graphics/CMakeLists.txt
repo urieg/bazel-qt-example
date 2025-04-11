@@ -27,6 +27,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         polygon.h polygon.cpp
         controller.h controller.cpp
         plane.h plane.cpp
+        lightsource.h lightsource.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET raycaster APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
